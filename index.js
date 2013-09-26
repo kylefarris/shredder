@@ -27,6 +27,7 @@ module.exports = function(options){
 	// ****************************************************************************
 	function Shredder(options) {
 		// Configuration Settings
+		if(typeof options == 'undefined') options = {};
 		this.settings = {};
 		this.settings.shred_path = '/usr/bin/shred';
 		this.settings.force = false;
