@@ -1,0 +1,31 @@
+{
+  "name": "shredder",
+  "version": "0.0.1",
+  "description": "A simple wrapped to the Unix shred command.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:kylefarris/shredder.git"
+  },
+  "keywords": [
+    "shred",
+    "shredder",
+    "srm",
+    "wipe",
+    "dod",
+    "zero-out",
+    "secure delete",
+    "secure remove",
+    "security",
+    "remove file",
+    "delete file"
+  ],
+  "author": "Kyle Farris",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/kylefarris/shredder/issues"
+  }
+}
