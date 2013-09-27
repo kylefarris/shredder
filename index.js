@@ -8,6 +8,7 @@
  */
 
 // Module dependencies.
+var __ = require('underscore');
 var fs = require('fs');
 var exec = require('child_process').exec;
 
@@ -18,7 +19,7 @@ var exec = require('child_process').exec;
 // @return	Function / Class
 // @api 	Public
 // ****************************************************************************
-module.exports = function(options){
+module.exports = function(options) {
 
 	// ****************************************************************************
 	// Shredder class definition
@@ -62,8 +63,16 @@ module.exports = function(options){
 	// @param	Function		cb	    What to do when file has been shredded.
 	// ****************************************************************************
 	Shredder.prototype.shred = function(files,cb) {
-		if(this.settings.debug_mode) console.log("shredder: Shredding initiated.");
-		var command = this.settings.shred_path + this.shred_flags + file;
+		if(this.settings.debug_mode) 
+			console.log("shredder: Shredding initiated.");
+			
+		if(typeof files == 'array')
+			files = files.join(' ');
+		
+		if(typeof files != 'string' || files.length <= 0)
+			return cb('No file(s) specified to shred!',files);
+		
+		var command = this.settings.shred_path + this.shred_flags + files;
 		
 		if(this.settings.debug_mode === true)
 			console.log('shredder: Configured shred command: ' + command);
@@ -104,7 +113,7 @@ function build_shred_flags(settings) {
 		flags_array.push('--iterations=' + settings.iterations);
 		
 	// How many bytes to shred
-	if(settings.bytes && settings.bytes.match(/^\d+[KMG]?$/) 
+	if(settings.bytes && settings.bytes.match(/^\d+[KMG]?$/))
 		flags_array.push('--size=' + settings.bytes);
 	
 	// Should we actually remove the file?

@@ -10,6 +10,9 @@
     "type": "git",
     "url": "git@github.com:kylefarris/shredder.git"
   },
+  "dependencies": {
+    "underscore": "1.5.x"
+  },
   "keywords": [
     "shred",
     "shredder",
