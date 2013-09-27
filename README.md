@@ -1,6 +1,6 @@
-## NodeJS Clamscan Virus Scanning Utility
+## NodeJS Secure File Removal Utility
 
-Use Node JS to securely delete files on your server with Unix's shred command.
+Use Node JS to securely delete files on your server with Unix's `shred` command.
 
 ## How to Install
 

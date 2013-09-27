@@ -102,7 +102,7 @@ module.exports = function(options) {
 // @api		Private
 // *****************************************************************************
 function build_shred_flags(settings) {
-	var flags_array = [];
+	var flags_array = ['-v'];
 	
 	// Change permissions to allow writing if necessary?
 	if(settings.force === true) 
