@@ -4,7 +4,7 @@ Use Node JS to securely delete files on your server with Unix's `shred` command.
 
 ## How to Install
 
-    npm install shredder
+    npm install shredfile
 
 ## Licence info
 
@@ -19,7 +19,7 @@ All of the values listed in the example below represent the default values for t
 You can simply do this:
 
 ```javascript
-var shredder = require('shredder');
+var shredfile = require('shredfile');
 ```
 
 And, you'll be good to go. 
@@ -27,7 +27,7 @@ And, you'll be good to go.
 __BUT__: If you want more control, you can specify all sorts of options.
 
 ```javascript
-var shredder = require('shredder')({
+var shredfile = require('shredfile')({
     shred_path: '/usr/bin/shred', // Path to shred binary on your server
     force: false, // If true, changes permissions of file to allow writing if necessary
     iterations: 3, // How many time to overwrite the file
@@ -41,7 +41,7 @@ var shredder = require('shredder')({
 Here is a _non-default values example_ (to help you get an idea of what the proper-looking values should be):
 
 ```javascript
-var clam = require('shredder')({
+var shredfile = require('shredfile')({
     shred_path: '/usr/local/bin/shred', // Maybe yours is located here
     force: true, // You do want to change permissions to force writing
     iterations: 25, // You're paranoid. Writing over the file 25 times.
@@ -75,7 +75,7 @@ This method allows you to shred a one or many files.
 
 ##### Single File:
 ```javascript
-shredder.shred('/a/picture/for_example.jpg', function(err, file) {
+shredfile.shred('/a/picture/for_example.jpg', function(err, file) {
     if(err) {
         console.log(err);
 		return;
@@ -86,7 +86,7 @@ shredder.shred('/a/picture/for_example.jpg', function(err, file) {
 
 ##### Multiple Files:
 ```javascript
-shredder.shred(['/a/picture/for_example.jpg','/a/different/file.dat'], function(err, file) {
+shredfile.shred(['/a/picture/for_example.jpg','/a/different/file.dat'], function(err, file) {
     if(err) {
         console.log(err);
 		return;

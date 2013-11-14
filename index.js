@@ -1,5 +1,5 @@
 /*!
- * Node - Shredder
+ * Node - Shredfile
  *
  * A basic wrapped to the Unix 'shred' command. 
  *
@@ -14,20 +14,20 @@ var spawn = require('child_process').spawn;
 var path = require('path');
 
 // ****************************************************************************
-// Return a new Shredder object.
+// Return a new Shredfile object.
 // -----
-// @param	Object 	options		Supplied to the Shredder object for configuration
+// @param	Object 	options		Supplied to the Shredfile object for configuration
 // @return	Function / Class
 // @api 	Public
 // ****************************************************************************
 module.exports = function(options) {
 
 	// ****************************************************************************
-	// Shredder class definition
+	// Shredfile class definition
 	// -----
 	// @param	Object	options		Key => Value pairs to override default settings
 	// ****************************************************************************
-	function Shredder(options) {
+	function Shredfile(options) {
 		// Configuration Settings
 		if(typeof options == 'undefined') options = {};
 		this.settings = {};
@@ -50,7 +50,7 @@ module.exports = function(options) {
 			this.shred_path_exists = true;
 		} else {
 			if(this.settings.debug_mode)
-				console.log("shredder: shred could not be found at " + this.shred_path + "!");
+				console.log("shredfile: shred could not be found at " + this.shred_path + "!");
 		}
 		
 		// Build shred flags
@@ -64,9 +64,9 @@ module.exports = function(options) {
 	// @param	Function		status_cb	What to do as file is being shredded.
 	// @param	Function		end_cb		What to do when file has been shredded.
 	// ****************************************************************************
-	Shredder.prototype.shred = function(files,end_cb,status_cb) {
+	Shredfile.prototype.shred = function(files,end_cb,status_cb) {
 		if(this.settings.debug_mode) 
-			console.log("shredder: Shredding initiated.");
+			console.log("shredfile: Shredding initiated.");
 			
 		var file = ''; // for storing file name being actively shredded
 		var active_file_path = ''; // for storing parent directory of file being actively shredded
@@ -76,7 +76,7 @@ module.exports = function(options) {
 		
 		if(!__.isArray(files) || files.length <= 0) {
 			if(this.settings.debug_mode) {
-				console.log("shredder: No file(s) specified to shred!");
+				console.log("shredfile: No file(s) specified to shred!");
 				console.log(typeof files);
 				console.dir(files);
 			}
@@ -87,13 +87,13 @@ module.exports = function(options) {
 		var options = __.union(this.shred_flags,files)
 		var shred = spawn(this.settings.shred_path,options);
 		if(this.settings.debug_mode === true)
-			console.log('shredder: Configured shred command: ' + this.settings.shred_path + ' ' + options.join(' '));
+			console.log('shredfile: Configured shred command: ' + this.settings.shred_path + ' ' + options.join(' '));
 		
 		var self = this;
 		
 		shred.stderr.on('data', function(data) {
 			if(self.settings.debug_mode) {
-				console.log('shredder: stderr: ' + data);
+				console.log('shredfile: stderr: ' + data);
 			}
 		});
 		
@@ -140,7 +140,7 @@ module.exports = function(options) {
 		});
 	};
 	
-	return new Shredder(options);
+	return new Shredfile(options);
 };
 
 // *****************************************************************************
