@@ -10,7 +10,8 @@
 // Module dependencies.
 var __ = require('underscore');
 var fs = require('fs');
-var exec = require('child_process').exec;
+var spawn = require('child_process').spawn;
+var path = require('path');
 
 // ****************************************************************************
 // Return a new Shredder object.
@@ -59,37 +60,85 @@ module.exports = function(options) {
 	// ****************************************************************************
 	// Securely removes a file.
 	// -----
-	// @param	String|Array	files	The path (string) or paths (array of string) to files that need to be shredded
-	// @param	Function		cb	    What to do when file has been shredded.
+	// @param	String|Array	files		The path (string) or paths (array of string) to files that need to be shredded
+	// @param	Function		status_cb	What to do as file is being shredded.
+	// @param	Function		end_cb		What to do when file has been shredded.
 	// ****************************************************************************
-	Shredder.prototype.shred = function(files,cb) {
+	Shredder.prototype.shred = function(files,end_cb,status_cb) {
 		if(this.settings.debug_mode) 
 			console.log("shredder: Shredding initiated.");
 			
-		if(typeof files == 'array')
-			files = files.join(' ');
+		var file = ''; // for storing file name being actively shredded
+		var active_file_path = ''; // for storing parent directory of file being actively shredded
+		var orig_files = files;
+		if(typeof files == 'string')
+			files = [files];
 		
-		if(typeof files != 'string' || files.length <= 0)
-			return cb('No file(s) specified to shred!',files);
+		if(!__.isArray(files) || files.length <= 0) {
+			if(this.settings.debug_mode) {
+				console.log("shredder: No file(s) specified to shred!");
+				console.log(typeof files);
+				console.dir(files);
+			}
+			return end_cb('No file(s) specified to shred!',files);
+		}
 		
-		var command = this.settings.shred_path + this.shred_flags + files;
-		
+		// Spawn the shred binary
+		var options = __.union(this.shred_flags,files)
+		var shred = spawn(this.settings.shred_path,options);
 		if(this.settings.debug_mode === true)
-			console.log('shredder: Configured shred command: ' + command);
+			console.log('shredder: Configured shred command: ' + this.settings.shred_path + ' ' + options.join(' '));
 		
 		var self = this;
 		
-		// Execute the shred binary with the proper flags
-		exec(command, function(err, stdout, stderr) { 
-			if(err || stderr) {
-				if(self.settings.debug_mode)
-					console.log(err);
-				cb(err, file);
-			} else {
-				console.log(stdout);
+		shred.stderr.on('data', function(data) {
+			if(self.settings.debug_mode) {
+				console.log('shredder: stderr: ' + data);
 			}
 		});
-	}
+		
+		shred.on('close', function(code) {
+			if(code === 0) {
+				if(typeof end_cb == 'function')
+					end_cb(null,files);
+			} else {
+				if(typeof end_cb == 'function')
+					end_cb('Shredding completed with issues. Exit Code: ' + code, files);
+			}
+		});
+		
+		shred.stderr.on('data', function (data) {
+			if(typeof status_cb == 'function') {
+				var matches;
+				var progress = 0;
+				var rename = '';
+				
+				data = data.toString().replace(/(\r\n|\n|\r)/gm,"");
+				var valid_info = new RegExp("^" + self.settings.shred_path);
+				if(data.match(valid_info)) {
+					if(matches = data.match(/(\/[^:]+)\: pass (\d+)\/(\d+)/)) {
+						active_file_path = path.dirname(matches[1]);
+						file = path.basename(matches[1]);
+						var numerator = parseInt(matches[2]);
+						var denominator = parseInt(matches[3]);
+						if(denominator !== 0)
+							progress = numerator / denominator;
+						if(typeof status_cb == 'function')
+							return status_cb('overwriting',progress,file,active_file_path);
+					}
+					matches = data.match(/renamed to (\/.*)$/);
+					if(__.isArray(matches)) {
+						rename = path.basename(matches[1]).trim();
+						if(!rename.match(/^[0]+$/)) return;
+						if(file.length > 0)
+							progress = rename.length / file.length;
+						if(typeof status_cb == 'function')
+							return status_cb('renaming',progress,file,active_file_path);
+					}
+				}
+			}
+		});
+	};
 	
 	return new Shredder(options);
 };
@@ -125,6 +174,6 @@ function build_shred_flags(settings) {
 		flags_array.push('-z');
 	
 	// Build the String
-	return ' ' + flags_array.join(' ') + ' ';
+	return flags_array;
 	
 }

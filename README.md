@@ -54,16 +54,21 @@ var clam = require('shredder')({
 
 ## API 
  
-### .shred(files, cb)
+### .shred(files, end_cb, status_cb)
 
 This method allows you to shred a one or many files.
 
 #### Parameters: 
 
-* `files` (string or array) A path (string) or list paths (array) to file(s) you want to be shredded.
-* `cb` (function) Will be called when the shred is complete. It takes 2 parameters:
+* `files` *required* (string or array) A path (string) or list paths (array) to file(s) you want to be shredded.
+* `end_cb` (function) Will be called when the shred is complete. It takes 2 parameters:
  * `err` (string or null) A standard error message string (null if no error)
  * `file` (string) The original `files` parameter passed into this `shred` method.
+* `status_cb` (function) Will be called everytime the status of a file is changed (ex. renaming and each overwrite iteration). It takes 4 parameters:
+ * `action` (string) This will be either 'overwriting' or 'renaming'
+ * `progress` (float) The percentage of the specific action that is complete (ex. 0.66) 
+ * `file` (string) File name of the file that is currently being acted upon
+ * `active_file_path` (string) Full path to the file that is currently being acted upon
 
 
 #### Examples:
@@ -87,5 +92,8 @@ shredder.shred(['/a/picture/for_example.jpg','/a/different/file.dat'], function(
 		return;
     }
 	console.log("Files have been shredded!");
+}, function(action,progress,file,path) {
+	status = (Math.round((status * 10000)) / 100);
+	self.settings.logger.debug(action + ' ' + file + ': ' + status + '%');
 });
 ```
