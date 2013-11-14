@@ -1,6 +1,6 @@
 {
   "name": "shredfile",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "A simple wrapper to the Unix shred command.",
   "main": "index.js",
   "scripts": {
@@ -16,10 +16,10 @@
   "keywords": [
     "shred",
     "shredder",
-	"shred file",
-	"unix shred",
-	"shred command",
-	"shredfile",
+    "shred file",
+    "unix shred",
+    "shred command",
+    "shredfile",
     "srm",
     "wipe",
     "dod",
