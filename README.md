@@ -93,7 +93,7 @@ shredder.shred(['/a/picture/for_example.jpg','/a/different/file.dat'], function(
     }
 	console.log("Files have been shredded!");
 }, function(action,progress,file,path) {
-	status = (Math.round((status * 10000)) / 100);
-	self.settings.logger.debug(action + ' ' + file + ': ' + status + '%');
+	progress = (Math.round((progress * 10000)) / 100);
+	self.settings.logger.debug(action + ' ' + file + ': ' + progress + '%');
 });
 ```
