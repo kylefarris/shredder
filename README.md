@@ -19,7 +19,7 @@ All of the values listed in the example below represent the default values for t
 You can simply do this:
 
 ```javascript
-var shredfile = require('shredfile');
+var shredfile = require('shredfile')();
 ```
 
 And, you'll be good to go. 

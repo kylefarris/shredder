@@ -67,9 +67,7 @@ module.exports = function(options) {
 	Shredfile.prototype.shred = function(files,end_cb,status_cb) {
 		if(this.settings.debug_mode) 
 			console.log("shredfile: Shredding initiated.");
-			
-		var file = ''; // for storing file name being actively shredded
-		var active_file_path = ''; // for storing parent directory of file being actively shredded
+		
 		var orig_files = files;
 		if(typeof files == 'string')
 			files = [files];
@@ -82,6 +80,12 @@ module.exports = function(options) {
 			}
 			return end_cb('No file(s) specified to shred!',files);
 		}
+		
+		// For storing file name being actively shredded
+		var file = path.basename(files[0]); 
+		
+		// For storing parent directory of file being actively shredded
+		var active_file_path = path.dirname(files[0]); 
 		
 		// Spawn the shred binary
 		var options = __.union(this.shred_flags,files)
