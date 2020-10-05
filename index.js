@@ -4,7 +4,8 @@ const { spawn } = require('child_process');
 const path = require('path');
 
 /**
- * Builds out the flags based on the configuration the user provided
+ * Builds out the flags based on the configuration the user provided.
+ *
  * @private
  * @param {object} settings - The settings used to build the flags
  * @returns {string} The concatenated shred flags
@@ -81,7 +82,7 @@ class ShredFile {
             remove: true,
             zero: true,
             debugMode: false,
-        }
+        };
 
         this.settings = { ...defaults, ...settings };
 
@@ -152,29 +153,30 @@ class ShredFile {
             hasCb = true;
         }
 
-        return new Promisea(async (resolve, reject) => {
+        // eslint-disable-next-line no-async-promise-executor
+        return new Promise(async (resolve, reject) => {
             const origFiles = files;
             if (typeof files === 'string') files = [files];
 
             if (!Array.isArray(files) || files.length <= 0) {
                 if (this.settings.debugMode) {
-                    console.log("shredfile: No file(s) specified to shred!", typeof files, files);
+                    console.log('shredfile: No file(s) specified to shred!', typeof files, files);
                 }
                 const err = new Error('No file(s) specified to shred!');
                 return (hasCb ? endCb(err, null) : reject(err));
             }
 
             // For storing file name being actively shredded
-            const file = path.basename(files[0]);
+            let file = path.basename(files[0]);
 
             // For storing parent directory of file being actively shredded
-            const activeFilePath = path.dirname(files[0]);
+            let activeFilePath = path.dirname(files[0]);
 
             // Spawn the shred binary
             const options = Array.from(new Set(this.shredFlags.concat(files)));
             const shred = spawn(this.settings.shredPath, options);
             if (this.settings.debugMode === true)
-                console.log('shredfile: Configured shred command: ' + this.settings.shredPath + ' ' + options.join(' '));
+                console.log(`shredfile: Configured shred command: ${this.settings.shredPath} ${options.join(' ')}`);
 
 
             // What to do if there's an error...
@@ -198,14 +200,14 @@ class ShredFile {
 
             shred.stderr.on('data', (data) => {
                 if (statusCb && typeof statusCb === 'function') {
-                    let matches;
                     let progress = 0;
                     let rename = '';
 
-                    data = data.toString().replace(/(\r\n|\n|\r)/gm, "");
+                    data = data.toString().replace(/(\r\n|\n|\r)/gm, '');
                     const validInfo = new RegExp(`^${self.settings.shredPath}`);
                     if (validInfo.test(data)) {
-                        if (matches = data.match(/(\/[^:]+)\: pass (\d+)\/(\d+)/)) {
+                        let matches = data.match(/(\/[^:]+): pass (\d+)\/(\d+)/);
+                        if (matches !== -1) {
                             activeFilePath = path.dirname(matches[1]);
                             file = path.basename(matches[1]);
                             const numerator = parseInt(matches[2]);

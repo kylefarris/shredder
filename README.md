@@ -1,99 +1,136 @@
-## NodeJS Secure File Removal Utility
+# NodeJS Secure File Removal Utility
 
-Use Node JS to securely delete files on your server with Unix's `shred` command.
+Use Node JS to securely delete files on your server with Unix's `shred` command. This module is not designed to work on Windows but may work on WSL. Your mileage may vary.
 
 ## How to Install
 
-    npm install shredfile
+*With NPM:*
 
-## Licence info
+```shell
+npm install shredfile
+```
+
+*With Yarn:*
+
+```shell
+yarn add shredfile
+```
+
+## License info
 
 Licensed under the MIT License:
 
-* http://www.opensource.org/licenses/mit-license.php
+* <http://www.opensource.org/licenses/mit-license.php>
 
 ## Getting Started
 
 All of the values listed in the example below represent the default values for their respective configuration item.
 
-You can simply do this:
+**You can simply do this:**
 
 ```javascript
-var shredfile = require('shredfile')();
+const ShredFile = require('shredfile');
+const shredder = new ShredFile();
 ```
 
-And, you'll be good to go. 
+And, you'll be good to go.
 
-__BUT__: If you want more control, you can specify all sorts of options.
+**BUT**: If you want more control, you can specify all sorts of options.
 
 ```javascript
-var shredfile = require('shredfile')({
-    shred_path: '/usr/bin/shred', // Path to shred binary on your server
-    force: false, // If true, changes permissions of file to allow writing if necessary
-    iterations: 3, // How many time to overwrite the file
+const ShredFile = require('shredfile');
+const shredder = new ShredFile({
+    shredPath: '/usr/bin/shred', // Path to shred binary on your server
+    force: false, // If true, changes permissions of the file(s) to allow writing if necessary
+    iterations: 3, // How many times to overwrite the file
     bytes: null, // If specified, it will shred to specified bytes and then stop
-    remove: true, // If true, removes (unlinks) file after shredding
+    remove: true, // If true, removes (unlinks) file(s) after shredding
     zero: true, // If true, adds final overwrite with zeros to hide shredding
-    debug_mode: false // Whether or not to log info/debug/error msgs to the console
+    debugMode: false // Whether or not to log info/debug/error msgs to the console
 });
 ```
 
-Here is a _non-default values example_ (to help you get an idea of what the proper-looking values should be):
+Here is a *non-default values example* (to help you get an idea of what the proper-looking values should be):
 
 ```javascript
-var shredfile = require('shredfile')({
-    shred_path: '/usr/local/bin/shred', // Maybe yours is located here
+const ShredFile = require('shredfile');
+const shredder = new ShredFile({
+    shredPath: '/usr/local/bin/shred', // Maybe yours is located here
     force: true, // You do want to change permissions to force writing
-    iterations: 25, // You're paranoid. Writing over the file 25 times.
-    bytes: '70M', // You're shredding the first 70 MB of the file only
-    remove: false, // You want to shred the file but keep it there.
-    zero: false, // You don't care about hiding the fact that you shredde the file.
-    debug_mode: true // You want to know everything that happened.
+    iterations: 25, // You wear a tinfoil hat at all times, so, naturally, write over the file 25 times.
+    bytes: '70M', // You're shredding the first 70 MB of the file only.
+    remove: false, // You want to shred the file but keep it there for some reason.
+    zero: false, // You don't care about hiding the fact that you shredded the file.
+    debugMode: true // You want to know everything that happened.
 });
 ```
 
-## API 
- 
-### .shred(files, end_cb, status_cb)
+## API
+
+### .shred(files, statusCb, endCb)
 
 This method allows you to shred a one or many files.
 
-#### Parameters: 
+#### Parameters
 
 * `files` *required* (string or array) A path (string) or list paths (array) to file(s) you want to be shredded.
-* `end_cb` (function) Will be called when the shred is complete. It takes 2 parameters:
- * `err` (string or null) A standard error message string (null if no error)
- * `file` (string) The original `files` parameter passed into this `shred` method.
-* `status_cb` (function) Will be called everytime the status of a file is changed (ex. renaming and each overwrite iteration). It takes 4 parameters:
- * `action` (string) This will be either 'overwriting' or 'renaming'
- * `progress` (float) The percentage of the specific action that is complete (ex. 0.66) 
- * `file` (string) File name of the file that is currently being acted upon
- * `active_file_path` (string) Full path to the file that is currently being acted upon
+* `statusCb` (function) Will be called everytime the status of a file is changed (ex. renaming and each overwrite iteration). It takes 4 parameters:
+  * `action` (string) This will be either 'overwriting' or 'renaming'
+  * `progress` (float) The percentage of the specific action that is complete (ex. 0.66)
+  * `file` (string) File name of the file that is currently being acted upon
+  * `active_file_path` (string) Full path to the file that is currently being acted upon*
+* `endCb` (function) Will be called when the shred is complete. It takes 2 parameters:
+  * `err` (string or null) A standard error message string (null if no error)
+  * `file` (string) The original `files` parameter passed into this `shred` method.
 
+#### Examples
 
-#### Examples:
+##### Single File (Callback Style)
 
-##### Single File:
 ```javascript
-shredfile.shred('/a/picture/for_example.jpg', function(err, file) {
-    if(err) {
-        console.log(err);
-		return;
-    }
-	console.log("File has been shredded!");
+shredder.shred('/a/picture/for_example.jpg', (err, file) => {
+    if (err) return console.error(err);
+    console.log("File has been shredded!");
 });
 ```
 
-##### Multiple Files:
+##### Single File (Async/Await)
+
 ```javascript
-shredfile.shred(['/a/picture/for_example.jpg','/a/different/file.dat'], function(err, file) {
-    if(err) {
-        console.log(err);
-		return;
+async function doShred() {
+    try {
+        const file = await shredder.shred('/a/picture/for_example.jpg');
+        console.log('Shredded File: ', file);
+    } catch (err) [
+        console.error(err);
     }
-	console.log("Files have been shredded!");
-}, function(action,progress,file,path) {
-	progress = (Math.round((progress * 10000)) / 100);
-	self.settings.logger.debug(action + ' ' + file + ': ' + progress + '%');
+}
+
+doShred();
+```
+
+##### Multiple Files (with status callback) - Callback Style
+
+```javascript
+const files = ['/a/picture/for_example.jpg','/a/different/file.dat'];
+shredder.shred(files, (action, progress, file, path) => {
+    progress = (Math.round((progress * 10000)) / 100);
+    console.log(`${action} ${file}: ${progress}%`);
+}, (err, file) => {
+    if (err) return console.error(err);
+    console.log("Files have been shredded!");
 });
 ```
+
+##### Multiple Files (with status callback) - Promise Style
+
+```javascript
+const files = ['/a/picture/for_example.jpg','/a/different/file.dat'];
+shredder.shred(files, (action, progress, file, path) => {
+    progress = (Math.round((progress * 10000)) / 100);
+    console.log(`${action} ${file}: ${progress}%`);
+}).then((files) => {
+    console.log('Files have been shredded!', files);
+}).catch((err) => {
+    console.error(err);
+});
