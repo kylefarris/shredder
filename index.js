@@ -231,4 +231,4 @@ class ShredFile {
     }
 }
 
-module.exports = new ShredFile;
+module.exports = ShredFile;
