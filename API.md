@@ -14,7 +14,6 @@
 <a name="new_ShredFile_new"></a>
 
 ### new ShredFile(settings)
-
 ShredFile Class constructor.
 
 
@@ -87,7 +86,8 @@ function moreShredding(cb) {
 <a name="ShredFile..endCallback"></a>
 
 ### ShredFile~endCallback : <code>function</code>
-This callback is displayed as part of the ShredFile class.
+This callback belongs to the `shred` method and will be called (if supplied)
+when the shred command has completed or if there is an error.
 
 **Kind**: inner typedef of [<code>ShredFile</code>](#ShredFile)  
 
@@ -99,7 +99,8 @@ This callback is displayed as part of the ShredFile class.
 <a name="ShredFile..statusCallback"></a>
 
 ### ShredFile~statusCallback : <code>function</code>
-This callback is displayed as part of the ShredFile class.
+This callback belongs to the `shred` command and will be called (if supplied) whenever
+the shred command sends a STDOUT. Used to show progress of a shred.
 
 **Kind**: inner typedef of [<code>ShredFile</code>](#ShredFile)  
 

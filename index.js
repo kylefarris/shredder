@@ -33,7 +33,8 @@ function buildShredFlags(settings) {
 }
 class ShredFile {
     /**
-     * This callback is displayed as part of the ShredFile class.
+     * This callback belongs to the `shred` method and will be called (if supplied)
+     * when the shred command has completed or if there is an error.
      *
      * @callback ShredFile~endCallback
      * @param {Error} err - A standard error message (null if no error)
@@ -41,7 +42,8 @@ class ShredFile {
      */
 
     /**
-     * This callback is displayed as part of the ShredFile class.
+     * This callback belongs to the `shred` command and will be called (if supplied) whenever
+     * the shred command sends a STDOUT. Used to show progress of a shred.
      *
      * @callback ShredFile~statusCallback
      * @param {string} action - This will be either 'overwriting' or 'renaming'
