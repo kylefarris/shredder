@@ -1,45 +1,64 @@
 {
-  "name": "shredfile",
-  "version": "0.2.0",
-  "description": "A simple wrapper to the Unix shred command.",
-  "main": "index.js",
-  "scripts": {
-    "test": "make test"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git@github.com:kylefarris/shredder.git"
-  },
-  "dependencies": {},
-  "keywords": [
-    "shred",
-    "shredder",
-    "shred file",
-    "unix shred",
-    "shred command",
-    "shredfile",
-    "srm",
-    "wipe",
-    "dod",
-    "zero-out",
-    "secure delete",
-    "secure remove",
-    "security",
-    "remove file",
-    "delete file"
-  ],
-  "author": "Kyle Farris <kyle.farris@infotechinc.com> (https://infotechinc.com)",
-  "license": "MIT",
-  "engines": {
-    "node": ">=10.12.0"
-  },
-  "bugs": {
-    "url": "https://github.com/kylefarris/shredder/issues"
-  },
-  "devDependencies": {
-    "chai": "^4.2.0",
-    "chai-as-promised": "^7.1.1",
-    "eslint": "^7.10.0",
-    "mocha": "^8.1.3"
-  }
+    "name": "shredfile",
+    "version": "0.2.0",
+    "description": "A simple wrapper to the Unix shred command.",
+    "main": "index.js",
+    "scripts": {
+        "lint": "node_modules/.bin/eslint '**/*.js'",
+        "format": "node_modules/.bin/prettier '**/*.{js,json}' --write",
+        "test": "make test",
+        "docs": "jsdoc2md index.js > API.md"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git@github.com:kylefarris/shredder.git"
+    },
+    "dependencies": {},
+    "keywords": [
+        "shred",
+        "shredder",
+        "shred file",
+        "unix shred",
+        "shred command",
+        "shredfile",
+        "srm",
+        "wipe",
+        "dod",
+        "zero-out",
+        "secure delete",
+        "secure remove",
+        "security",
+        "remove file",
+        "delete file"
+    ],
+    "author": "Kyle Farris <kyle.farris@infotechinc.com> (https://infotechinc.com)",
+    "license": "MIT",
+    "engines": {
+        "node": ">=10.12.0"
+    },
+    "bugs": {
+        "url": "https://github.com/kylefarris/shredder/issues"
+    },
+    "husky": {
+        "hooks": {
+            "pre-commit": "yarn run format && yarn run lint",
+            "pre-push": "yarn run test"
+        }
+    },
+    "devDependencies": {
+        "chai": "^4.2.0",
+        "chai-as-promised": "^7.1.1",
+        "eslint": "^7.10.0",
+        "eslint-config-airbnb": "^18.2.0",
+        "eslint-config-airbnb-base": "^14.2.0",
+        "eslint-config-prettier": "^6.12.0",
+        "eslint-plugin-chai-friendly": "^0.6.0",
+        "eslint-plugin-import": "^2.22.1",
+        "eslint-plugin-jsdoc": "^30.6.3",
+        "eslint-plugin-prettier": "^3.1.4",
+        "husky": "^4.3.0",
+        "jsdoc-to-markdown": "^6.0.1",
+        "mocha": "^8.1.3",
+        "prettier": "^2.1.2"
+    }
 }
