@@ -1,13 +1,43 @@
 // const fs = require('fs');
+const { statSync, appendFileSync, openSync, existsSync } = require('fs');
 const { describe, it, beforeEach } = require('mocha');
 const chai = require('chai');
 const chaiAsPromised = require('chai-as-promised');
+const cliProgress = require('cli-progress');
 const testConfig = require('./test_config');
 
 const should = chai.should();
 const { expect } = chai;
+const testFile1 = './tests/testFile.txt';
+const testFile2 = './tests/testFile2.txt';
 
 chai.use(chaiAsPromised);
+
+const createTestFile = (fileSize, testFile) => {
+    // Make a file to shred...
+    const ws = openSync(testFile, 'a');
+
+    const maxLoops = 1000000;
+    let i = 0;
+    let size = 0;
+
+    console.log('Creating 10 MB test file to shred...');
+
+    const bar = new cliProgress.SingleBar({}, cliProgress.Presets.shades_classic);
+    bar.start(fileSize, size);
+
+    // 10 MB
+    while (size <= fileSize && i <= maxLoops) {
+        const str = 'This is a test of the emergency broadcast system. Beep Boop. Beep Boop. BEEEEEEEEEEEEEEEEEEEEEEEEEEEEEP!!!!!\n';
+        appendFileSync(ws, str, 'utf8');
+        i += 1;
+        const stat = statSync(testFile);
+        size = stat.size;
+        bar.update(size);
+    }
+
+    bar.stop();
+};
 
 const ShredFile = require('../index.js');
 
@@ -92,7 +122,7 @@ describe('buildClamFlags', () => {
         shredder = new ShredFile();
     });
 
-    it('shredFlags should exist', () => {
+    it('should have a property called "shredFlags"', () => {
         should.exist(shredder.shredFlags);
     });
 
@@ -108,5 +138,79 @@ describe('buildClamFlags', () => {
         const flags = shredder.shredFlags;
 
         flags.should.be.eql(standardFlags);
+    });
+});
+
+describe('buildClamFlags', () => {
+    let shredder;
+    beforeEach(async () => {
+        shredder = new ShredFile(testConfig);
+    });
+
+    it('should have a method called "shred"', () => {
+        should.exist(shredder.shred);
+    });
+
+    it('should shred a file successfully...', async () => {
+        // Create 10 MB test file...
+        createTestFile(1024 ** 2 * 10, testFile1);
+        let fileExists = existsSync(testFile1);
+        expect(fileExists).to.be.true;
+
+        // Shred that file...
+        const file = await shredder.shred(testFile1);
+        fileExists = existsSync(testFile1);
+        expect(fileExists).to.be.false;
+        expect(file).to.be.eql(testFile1);
+    });
+
+    it('should shred a set of files successfully...', async () => {
+        // Create 10 MB test file...
+        createTestFile(1024 ** 2 * 10, testFile1);
+
+        // Create 15 MB test file...
+        createTestFile(1024 ** 2 * 15, testFile2);
+
+        // See if files exist...
+        let file1Exists = existsSync(testFile1);
+        let file2Exists = existsSync(testFile2);
+        expect(file1Exists).to.be.true;
+        expect(file2Exists).to.be.true;
+
+        // Shred those files file...
+        const files = await shredder.shred([testFile1, testFile2]);
+        file1Exists = existsSync(testFile1);
+        file2Exists = existsSync(testFile2);
+
+        // Make sure all is bueno...
+        expect(file1Exists).to.be.false;
+        expect(file2Exists).to.be.false;
+        expect(files).to.be.eql([testFile1, testFile2]);
+    });
+
+    it('should shred a file and send status of the shred while doing it...', async () => {
+        // Create 10 MB test file...
+        createTestFile(1024 ** 2 * 10, testFile1);
+        let fileExists = existsSync(testFile1);
+        expect(fileExists).to.be.true;
+
+        // Store Status Messages...
+        const statusMsgs = [];
+
+        // Shred that file...
+        const shreddedFile = await shredder.shred(testFile1, (action, progress, file, path) => {
+            progress = Math.round(progress * 10000) / 100;
+            statusMsgs.push(`${action} ${path}/${file}: ${progress}%`);
+        });
+
+        fileExists = existsSync(testFile1);
+        expect(fileExists).to.be.false;
+        expect(shreddedFile).to.be.eql(testFile1);
+        expect(statusMsgs).to.be.eql([
+            'overwriting /tests/testFile.txt: 25%',
+            'overwriting /tests/testFile.txt: 50%',
+            'overwriting /tests/testFile.txt: 75%',
+            'overwriting /tests/testFile.txt: 100%',
+        ]);
     });
 });
