@@ -109,5 +109,5 @@ the shred command sends a STDOUT. Used to show progress of a shred.
 | action | <code>string</code> | This will be either 'overwriting' or 'renaming' |
 | progress | <code>number</code> | The percentage of the specific action that is complete (ex. 0.66) |
 | file | <code>string</code> \| <code>Array</code> | File name of the file that is currently being acted upon |
-| activeFilePath | <code>string</code> | Full path to the file that is currently being acted upon |
+| activeFilePath | <code>string</code> | Full path to the file that is currently being acted upon (does not include file name) |
 

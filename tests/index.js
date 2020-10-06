@@ -28,7 +28,8 @@ const createTestFile = (fileSize, testFile) => {
 
     // 10 MB
     while (size <= fileSize && i <= maxLoops) {
-        const str = 'This is a test of the emergency broadcast system. Beep Boop. Beep Boop. BEEEEEEEEEEEEEEEEEEEEEEEEEEEEEP!!!!!\n';
+        const str =
+            'This is a test of the emergency broadcast system. Beep Boop. Beep Boop. BEEEEEEEEEEEEEEEEEEEEEEEEEEEEEP!!!!!\n';
         appendFileSync(ws, str, 'utf8');
         i += 1;
         const stat = statSync(testFile);
