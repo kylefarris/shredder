@@ -1,16 +1,18 @@
 # NodeJS Secure File Removal Utility
 
-Use Node JS to securely delete files on your server with Unix's `shred` command. This module is not designed to work on Windows but may work on WSL. Your mileage may vary.
+Use Node JS to securely delete files on your server with Unix's `shred` command. You really don't need this module if the machine your running your project on is not using a tranditional mechanical hard drive. In other words, if the file you want to securely delete is on solid state storage, there's no need to use this module and, in fact, it could actually be unnecessarily shortening the life of that disk to use it.
+
+NOTE: This module is not designed to work on Windows but may work on WSL. Your mileage may vary.
 
 ## How to Install
 
-*With NPM:*
+**With NPM:**
 
 ```shell
 npm install shredfile
 ```
 
-*With Yarn:*
+**With Yarn:**
 
 ```shell
 yarn add shredfile
@@ -50,7 +52,7 @@ const shredder = new ShredFile({
 });
 ```
 
-Here is a *non-default values example* (to help you get an idea of what the proper-looking values should be):
+Here is a *non-default values example* (to help you get an idea of what some proper-looking alternate values could be):
 
 ```javascript
 const ShredFile = require('shredfile');
