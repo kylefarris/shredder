@@ -41,8 +41,8 @@
     },
     "husky": {
         "hooks": {
-            "pre-commit": "yarn run format && yarn run lint",
-            "pre-push": "yarn run test"
+            "pre-commit": "npm run docs && npm run format && npm run lint",
+            "pre-push": "npm run test"
         }
     },
     "devDependencies": {
