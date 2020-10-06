@@ -48,6 +48,7 @@
     "devDependencies": {
         "chai": "^4.2.0",
         "chai-as-promised": "^7.1.1",
+        "cli-progress": "^3.8.2",
         "eslint": "^7.10.0",
         "eslint-config-airbnb": "^18.2.0",
         "eslint-config-airbnb-base": "^14.2.0",

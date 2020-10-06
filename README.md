@@ -130,7 +130,7 @@ shredder.shred(files, (action, progress, file, path) => {
 const files = ['/a/picture/for_example.jpg','/a/different/file.dat'];
 shredder.shred(files, (action, progress, file, path) => {
     progress = (Math.round((progress * 10000)) / 100);
-    console.log(`${action} ${file}: ${progress}%`);
+    console.log(`${action} ${path}/${file}: ${progress}%`);
 }).then((files) => {
     console.log('Files have been shredded!', files);
 }).catch((err) => {

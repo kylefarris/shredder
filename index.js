@@ -49,7 +49,7 @@ class ShredFile {
      * @param {string} action - This will be either 'overwriting' or 'renaming'
      * @param {number} progress - The percentage of the specific action that is complete (ex. 0.66)
      * @param {string | Array} file - File name of the file that is currently being acted upon
-     * @param {string} activeFilePath - Full path to the file that is currently being acted upon
+     * @param {string} activeFilePath - Full path to the file that is currently being acted upon (does not include file name)
      */
 
     /**
@@ -152,7 +152,7 @@ class ShredFile {
 
         // eslint-disable-next-line no-async-promise-executor, consistent-return
         return new Promise(async (resolve, reject) => {
-            // const origFiles = files;
+            const origFiles = files;
             if (typeof files === 'string') files = [files];
 
             if (!Array.isArray(files) || files.length <= 0) {
@@ -175,21 +175,14 @@ class ShredFile {
             if (this.settings.debugMode === true)
                 console.log(`shredfile: Configured shred command: ${this.settings.shredPath} ${options.join(' ')}`);
 
-            // What to do if there's an error...
-            shred.stderr.on('data', (data) => {
-                if (self.settings.debugMode) console.log(`shredfile: stderr: ${data}`);
-                if (hasCb) endCb(new Error(data), null);
-                else reject(new Error(data));
-            });
-
             // What to do if when the shredding is complete...
             shred.on('close', (code) => {
                 if (code === 0) {
-                    if (hasCb) endCb(null, files);
-                    else resolve(files);
+                    if (hasCb) endCb(null, origFiles);
+                    else resolve(origFiles);
                 } else {
                     const errorMsg = `Shredding completed with issues. Exit Code: ${code}`;
-                    if (hasCb) endCb(new Error(errorMsg), files);
+                    if (hasCb) endCb(new Error(errorMsg), origFiles);
                     else reject(errorMsg);
                 }
             });
@@ -200,10 +193,12 @@ class ShredFile {
                     let rename = '';
 
                     data = data.toString().replace(/(\r\n|\n|\r)/gm, '');
-                    const validInfo = new RegExp(`^${self.settings.shredPath}`);
+                    const validInfo = new RegExp(
+                        `^(${self.settings.shredPath}|${self.settings.shredPath.split('/').pop()})`
+                    );
                     if (validInfo.test(data)) {
                         let matches = data.match(/(\/[^:]+): pass (\d+)\/(\d+)/);
-                        if (matches !== -1) {
+                        if (matches !== -1 && matches !== null) {
                             activeFilePath = path.dirname(matches[1]);
                             file = path.basename(matches[1]);
                             const numerator = parseInt(matches[2], 10);
