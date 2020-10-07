@@ -1,6 +1,5 @@
 [![NPM Version][npm-version-image]][npm-url] [![NPM Downloads][npm-downloads-image]][npm-url] [![Node.js Version][node-image]][node-url] [![Build Status][travis-image]][travis-url]
 
-
 # NodeJS Secure File Removal Utility
 
 Use Node JS to securely delete files on your server with Unix's `shred` command. You really don't need this module if the machine your running your project on is not using a tranditional mechanical hard drive. In other words, if the file you want to securely delete is on solid state storage, there's no need to use this module and, in fact, it could actually be unnecessarily shortening the life of that disk to use it.
@@ -139,6 +138,7 @@ shredder.shred(files, (action, progress, file, path) => {
 }).catch((err) => {
     console.error(err);
 });
+```
 
 [node-image]: https://img.shields.io/node/v/shredfile.svg
 [node-url]: https://nodejs.org/en/download
