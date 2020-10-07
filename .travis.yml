@@ -6,6 +6,3 @@ node_js:
   - "12.0"
   - "13.0"
   - "14.0"
-before_install:
-  - sudo apt-get update
-  - sudo apt-get install shred
