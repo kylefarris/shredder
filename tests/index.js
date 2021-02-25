@@ -1,5 +1,6 @@
 // const fs = require('fs');
-const { statSync, appendFileSync, openSync, existsSync } = require('fs');
+const { statSync, appendFileSync, openSync, existsSync, mkdirSync, rmdirSync } = require('fs');
+const { dirname } = require('path');
 const { describe, it, beforeEach } = require('mocha');
 const chai = require('chai');
 const chaiAsPromised = require('chai-as-promised');
@@ -10,10 +11,15 @@ const should = chai.should();
 const { expect } = chai;
 const testFile1 = './tests/testFile.txt';
 const testFile2 = './tests/testFile2.txt';
+const testFile3 = './tests/sub/testFile3.txt';
 
 chai.use(chaiAsPromised);
 
 const createTestFile = (fileSize, testFile) => {
+    // Make sure the file path exists
+    const dir = dirname(testFile);
+    mkdirSync(dir, { recursive: true });
+
     // Make a file to shred...
     const ws = openSync(testFile, 'a');
 
@@ -117,7 +123,7 @@ describe('Initialized ShredFile module', () => {
     });
 });
 
-describe('buildClamFlags', () => {
+describe('buildShredFlags()', () => {
     let shredder;
     beforeEach(async () => {
         shredder = new ShredFile();
@@ -142,7 +148,7 @@ describe('buildClamFlags', () => {
     });
 });
 
-describe('buildClamFlags', () => {
+describe('shred()', () => {
     let shredder;
     beforeEach(async () => {
         shredder = new ShredFile(testConfig);
@@ -165,7 +171,7 @@ describe('buildClamFlags', () => {
         expect(file).to.be.eql(testFile1);
     });
 
-    it('should shred a set of files successfully...', async () => {
+    it('should shred a set of files in the same directory successfully...', async () => {
         // Create 10 MB test file...
         createTestFile(1024 ** 2 * 10, testFile1);
 
@@ -189,6 +195,32 @@ describe('buildClamFlags', () => {
         expect(files).to.be.eql([testFile1, testFile2]);
     });
 
+    it('should shred a set of files in different directories successfully...', async () => {
+        // Create 10 MB test file...
+        createTestFile(1024 ** 2 * 10, testFile1);
+
+        // Create 15 MB test file...
+        createTestFile(1024 ** 2 * 15, testFile3);
+
+        // See if files exist...
+        let file1Exists = existsSync(testFile1);
+        let file3exists = existsSync(testFile3);
+        expect(file1Exists).to.be.true;
+        expect(file3exists).to.be.true;
+
+        // Shred those files file...
+        const files = await shredder.shred([testFile1, testFile3]);
+        file1Exists = existsSync(testFile1);
+        file3exists = existsSync(testFile3);
+
+        // Make sure all is bueno...
+        expect(file1Exists).to.be.false;
+        expect(file3exists).to.be.false;
+        expect(files).to.be.eql([testFile1, testFile3]);
+
+        rmdirSync('./tests/sub');
+    });
+
     it('should shred a file and send status of the shred while doing it...', async () => {
         // Create 10 MB test file...
         createTestFile(1024 ** 2 * 10, testFile1);
@@ -208,10 +240,10 @@ describe('buildClamFlags', () => {
         expect(fileExists).to.be.false;
         expect(shreddedFile).to.be.eql(testFile1);
         expect(statusMsgs).to.be.eql([
-            'overwriting /tests/testFile.txt: 25%',
-            'overwriting /tests/testFile.txt: 50%',
-            'overwriting /tests/testFile.txt: 75%',
-            'overwriting /tests/testFile.txt: 100%',
+            'overwriting ./tests/testFile.txt: 25%',
+            'overwriting ./tests/testFile.txt: 50%',
+            'overwriting ./tests/testFile.txt: 75%',
+            'overwriting ./tests/testFile.txt: 100%',
         ]);
     });
 });

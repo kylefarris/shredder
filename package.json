@@ -13,7 +13,6 @@
         "type": "git",
         "url": "git@github.com:kylefarris/shredder.git"
     },
-    "dependencies": {},
     "keywords": [
         "shred",
         "shredder",

@@ -151,7 +151,7 @@ class ShredFile {
         }
 
         // eslint-disable-next-line no-async-promise-executor, consistent-return
-        return new Promise(async (resolve, reject) => {
+        return new Promise((resolve, reject) => {
             const origFiles = files;
             if (typeof files === 'string') files = [files];
 
@@ -163,15 +163,25 @@ class ShredFile {
                 return hasCb ? endCb(err, null) : reject(err);
             }
 
+            // Current Working Directory for the spawned process
+            let cwd;
+
             // For storing file name being actively shredded
             let file = path.basename(files[0]);
 
             // For storing parent directory of file being actively shredded
             let activeFilePath = path.dirname(files[0]);
 
+            // If all files have the same path, set the CWD for `spawn` and de-dupe the repeated directories
+            // so we can help prevent going over the Unix command + args size limit
+            if (Array.from(new Set(files.map((f) => path.dirname(f)))).length === 1) {
+                files = files.map((f) => path.basename(f));
+                cwd = activeFilePath;
+            }
+
             // Spawn the shred binary
             const options = Array.from(new Set(this.shredFlags.concat(files)));
-            const shred = spawn(this.settings.shredPath, options);
+            const shred = spawn(this.settings.shredPath, options, { cwd });
             if (this.settings.debugMode === true)
                 console.log(`shredfile: Configured shred command: ${this.settings.shredPath} ${options.join(' ')}`);
 
@@ -197,9 +207,10 @@ class ShredFile {
                         `^(${self.settings.shredPath}|${self.settings.shredPath.split('/').pop()})`
                     );
                     if (validInfo.test(data)) {
-                        let matches = data.match(/(\/[^:]+): pass (\d+)\/(\d+)/);
+                        let matches = data.match(/^[^:]+: ([^:]+): pass (\d+)\/(\d+)/);
                         if (matches !== -1 && matches !== null) {
                             activeFilePath = path.dirname(matches[1]);
+                            if (activeFilePath === '.' && cwd) activeFilePath = cwd || '.';
                             file = path.basename(matches[1]);
                             const numerator = parseInt(matches[2], 10);
                             const denominator = parseInt(matches[3], 10);
