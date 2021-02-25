@@ -82,7 +82,7 @@ This method allows you to shred a one or many files.
   * `action` (string) This will be either 'overwriting' or 'renaming'
   * `progress` (float) The percentage of the specific action that is complete (ex. 0.66)
   * `file` (string) File name of the file that is currently being acted upon
-  * `active_file_path` (string) Full path to the file that is currently being acted upon*
+  * `activeFilePath` (string) Full path to the file that is currently being acted upon (does not include file name)
 * `endCb` (function) Will be called when the shred is complete. It takes 2 parameters:
   * `err` (string or null) A standard error message string (null if no error)
   * `file` (string) The original `files` parameter passed into this `shred` method.
